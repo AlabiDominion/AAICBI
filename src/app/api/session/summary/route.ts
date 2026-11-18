@@ -13,7 +13,7 @@ export async function GET() {
   const [dashboard, profile] = await Promise.all([dashboardHrefFor(session), profileForSession(session)]);
   const card = profile ? (await cardsFor([profile])).get(profile.id) : null;
   return NextResponse.json(
-    { signedIn: true, name: card?.name ?? session.email, avatarUrl: card?.avatarUrl ?? null, square: card?.square ?? false, handle: profile?.handle ?? null, kindLabel: card?.kindLabel ?? null, dashboardHref: dashboard },
+    { signedIn: true, role: session.role, name: card?.name ?? session.email, avatarUrl: card?.avatarUrl ?? null, square: card?.square ?? false, handle: profile?.handle ?? null, kindLabel: card?.kindLabel ?? null, dashboardHref: dashboard },
     { headers: { "Cache-Control": "private, no-store" } },
   );
 }

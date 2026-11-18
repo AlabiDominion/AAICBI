@@ -19,7 +19,7 @@ import FeedEcosystem from "@/components/ecosystem/FeedEcosystem";
 import { visitorGames } from "@/lib/quest/visitorPlay";
 import { getSession } from "@/lib/auth/session";
 import { dashboardHrefFor } from "@/lib/auth/home";
-import { getEcosystemFlags } from "@/lib/ecosystem/flags";
+import { getEcosystemFlags, type EcosystemFlags } from "@/lib/ecosystem/flags";
 import { actorOf, feedPage, suggestions, trendingTags } from "@/lib/posts/interactions";
 import { publicFeedFirstPage, publicSuggestions, publicTrendingTags } from "@/lib/posts/publicFeed";
 import { cardsFor } from "@/lib/profiles/card";
@@ -32,9 +32,8 @@ const TABS: Array<[FeedTab, string]> = [["latest", "Latest"], ["following", "Fol
  * commenting, following, saving and posting ask a visitor for an account. Visitors are served a short-lived shared copy
  * of the first page, signed-in people get their own view. `base` is the address the tab links stay on.
  */
-export default async function FeedHome({ searchParams, base }: { searchParams: { tab?: string; type?: string; n?: string }; base: "/" | "/feed" }) {
-  const flags = await getEcosystemFlags();
-  const session = await getSession();
+export default async function FeedHome({ searchParams, base, initialFlags }: { searchParams: { tab?: string; type?: string; n?: string }; base: "/" | "/feed"; initialFlags?: EcosystemFlags }) {
+  const [flags, session] = await Promise.all([initialFlags ?? getEcosystemFlags(), getSession()]);
   const actor = await actorOf(session);
   const tab = parseTab(searchParams.tab);
   const visitorLatest = !actor && tab === "latest";

@@ -8,6 +8,7 @@ import Icon from "@/components/ui/Icon";
 import AvatarFallback from "@/components/ui/AvatarFallback";
 import SearchBox from "@/components/ecosystem/SearchBox";
 import AddToHomeScreenButton from "@/components/pwa/AddToHomeScreenButton";
+import { loadSessionSummary } from "@/lib/clientSession";
 
 export interface Summary { signedIn: boolean; name?: string; avatarUrl?: string | null; square?: boolean; handle?: string | null; kindLabel?: string | null; dashboardHref?: string }
 
@@ -40,9 +41,9 @@ export default function HomeHeader({ initialQuery = "", initial }: { initialQuer
     if (initial) return;
     let live = true;
     try { if (localStorage.getItem("aaicbi_member") === "1") setMe(null); } catch { /* storage may be blocked */ }
-    fetch("/api/session/summary", { cache: "no-store" }).then((r) => (r.ok ? r.json() : { signedIn: false })).then((d) => { if (!live) return; setMe(d); try { localStorage.setItem("aaicbi_member", d.signedIn ? "1" : "0"); } catch { /* ignore */ } }).catch(() => live && setMe({ signedIn: false }));
+    loadSessionSummary(pathname).then((d) => { if (!live) return; setMe(d); try { localStorage.setItem("aaicbi_member", d.signedIn ? "1" : "0"); } catch { /* ignore */ } });
     return () => { live = false; };
-  }, [initial]);
+  }, [initial, pathname]);
   useEffect(() => { setMenu(false); setOpen(false); }, [pathname]);
   useEffect(() => {
     function away(e: MouseEvent) { if (box.current && !box.current.contains(e.target as Node)) setMenu(false); }
@@ -110,10 +111,10 @@ export default function HomeHeader({ initialQuery = "", initial }: { initialQuer
       <nav aria-label="Explore" className="hidden border-t border-brand-gray md:block">
         <div className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 sm:px-6">
           {PRIMARY.map((l) => (
-            <Link key={l.href} href={l.href} aria-current={active(l.href) ? "page" : undefined} className={`whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${active(l.href) ? "border-b-2 border-brand-teal text-brand-teal" : "text-gray-600 hover:text-brand-ink"}`}>{l.label}</Link>
+            <Link key={l.href} prefetch={false} href={l.href} aria-current={active(l.href) ? "page" : undefined} className={`whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${active(l.href) ? "border-b-2 border-brand-teal text-brand-teal" : "text-gray-600 hover:text-brand-ink"}`}>{l.label}</Link>
           ))}
-          <Link href="/about" aria-current={pathname === "/about" ? "page" : undefined} className={`ml-auto whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${pathname === "/about" ? "border-b-2 border-brand-teal text-brand-teal" : "text-gray-600 hover:text-brand-ink"}`}>About</Link>
-          <Link href="/certificate" className="whitespace-nowrap px-4 py-2.5 text-sm font-semibold text-gray-600 hover:text-brand-ink">Verify a certificate</Link>
+          <Link prefetch={false} href="/about" aria-current={pathname === "/about" ? "page" : undefined} className={`ml-auto whitespace-nowrap px-4 py-2.5 text-sm font-semibold ${pathname === "/about" ? "border-b-2 border-brand-teal text-brand-teal" : "text-gray-600 hover:text-brand-ink"}`}>About</Link>
+          <Link prefetch={false} href="/certificate" className="whitespace-nowrap px-4 py-2.5 text-sm font-semibold text-gray-600 hover:text-brand-ink">Verify a certificate</Link>
         </div>
       </nav>
 
@@ -121,7 +122,7 @@ export default function HomeHeader({ initialQuery = "", initial }: { initialQuer
         <div className="border-t border-brand-gray bg-brand-surface px-4 py-3 md:hidden">
           <nav aria-label="Explore (menu)" className="flex flex-col">
             {[...PRIMARY, { href: "/courses", label: "Courses" }, { href: "/about", label: "About" }, { href: "/certificate", label: "Verify a certificate" }].map((l) => (
-              <Link key={l.href} href={l.href} aria-current={active(l.href) ? "page" : undefined} className={`flex min-h-[44px] items-center rounded-xl px-3 text-sm font-semibold ${active(l.href) ? "bg-brand-mint text-brand-teal" : "text-brand-ink hover:bg-brand-mint"}`}>{l.label}</Link>
+              <Link key={l.href} prefetch={false} href={l.href} aria-current={active(l.href) ? "page" : undefined} className={`flex min-h-[44px] items-center rounded-xl px-3 text-sm font-semibold ${active(l.href) ? "bg-brand-mint text-brand-teal" : "text-brand-ink hover:bg-brand-mint"}`}>{l.label}</Link>
             ))}
           </nav>
           <div className="mt-3 border-t border-brand-gray pt-3">

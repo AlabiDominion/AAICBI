@@ -21,6 +21,7 @@ import JoinChooser from "@/components/landing/JoinChooser";
 import SampleNote from "@/components/landing/SampleNote";
 import AdSlot from "@/components/ads/AdSlot";
 import { getLandingView } from "@/lib/landing/data";
+import type { EcosystemFlags } from "@/lib/ecosystem/flags";
 import type { ProgressSurfaceData } from "@/lib/trainee/progressSurface";
 
 /**
@@ -87,7 +88,9 @@ const SAMPLE_PROGRESS: ProgressSurfaceData = {
  * established posture that nothing reaches a public audience without
  * a real human decision.
  */
-export default async function LegacyHome({ path = "/about" }: { path?: string }) {
+export default async function LegacyHome({ path = "/about", initialFlags }: { path?: string; initialFlags?: EcosystemFlags }) {
+  // Independent public data loads together; reuse switches already read by the home page.
+  const landingRequest = getLandingView(initialFlags).catch(() => null);
   let testimonials: Array<{
     id: string;
     quote: string;
@@ -109,7 +112,7 @@ export default async function LegacyHome({ path = "/about" }: { path?: string })
 
   // The ecosystem sections, or null when SUPER_ADMIN has switched them off,
   // in which case the page below is the original landing page, unchanged.
-  const landing = await getLandingView().catch(() => null);
+  const landing = await landingRequest;
   const eco = landing?.view ?? null;
   const flags = landing?.flags ?? null;
 

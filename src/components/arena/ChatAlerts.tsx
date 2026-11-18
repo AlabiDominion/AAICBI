@@ -21,13 +21,16 @@ export default function ChatAlerts() {
 
   useEffect(() => {
     let stop = false;
+    let loading = false;
     const load = async () => {
-      if (document.hidden || stop) return;
+      if (document.hidden || stop || loading) return;
+      loading = true;
       try {
         const res = await fetch("/api/arena/alerts", { cache: "no-store" });
         if (res.status === 401 || res.status === 403) { stop = true; setA(null); return; }
         if (res.ok && !stop) setA(await res.json());
       } catch { /* offline: try again later */ }
+      finally { loading = false; }
     };
     const first = setTimeout(load, 1500);
     const id = setInterval(() => { void load(); }, 20_000);

@@ -77,14 +77,17 @@ export default function ArenaReturnPill() {
   useEffect(() => {
     if (hidden) return;
     let stop = false;
+    let loading = false;
     const check = async () => {
-      if (document.hidden) return;
+      if (document.hidden || stop || loading) return;
+      loading = true;
       try {
         const res = await fetch("/api/arena/active", { cache: "no-store" });
         if (res.status === 401 || res.status === 403) { stop = true; setM(null); return; }
         const j = await res.json();
         if (!stop) setM(j.match);
       } catch { /* offline: try again later */ }
+      finally { loading = false; }
     };
     const first = setTimeout(check, 2500);
     const id = setInterval(() => { if (!stop) void check(); }, 25_000);

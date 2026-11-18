@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 
 /**
  * The floating extras (Loop, page help, install prompt, offline notice) are not needed for the page to be usable, so they load
@@ -11,12 +12,30 @@ const InstallPrompt = dynamic(() => import("@/components/pwa/InstallPrompt"), { 
 const NetworkStatus = dynamic(() => import("@/components/pwa/NetworkStatus"), { ssr: false });
 
 export default function LazyChrome() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let idle: number | undefined;
+    const schedule = () => {
+      timer = setTimeout(() => {
+        if ("requestIdleCallback" in window) idle = window.requestIdleCallback(() => setReady(true), { timeout: 3000 });
+        else setReady(true);
+      }, 1500);
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
+    return () => {
+      window.removeEventListener("load", schedule);
+      clearTimeout(timer);
+      if (idle !== undefined) window.cancelIdleCallback(idle);
+    };
+  }, []);
   return (
     <>
-      <TourGuideButton />
-      <LoopGuide />
+      {ready && <TourGuideButton />}
+      {ready && <LoopGuide />}
       <NetworkStatus />
-      <InstallPrompt />
+      {ready && <InstallPrompt />}
     </>
   );
 }

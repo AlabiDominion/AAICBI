@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import MobileBottomNav from "@/components/pwa/MobileBottomNav";
 import { pageHasSidebar } from "@/lib/sidebarRoutes";
 import type { ShellInfo } from "@/lib/pwa/shell";
+import { useSessionSummary } from "@/components/useSessionSummary";
 
 /**
  * Keeps the bottom navigation with a signed-in person on pages outside their
@@ -16,9 +17,10 @@ export default function GlobalBottomNav() {
   const pathname = usePathname() ?? "/";
   const [shell, setShell] = useState<ShellInfo | null>(null);
   const insideRoleArea = pageHasSidebar(pathname);
+  const session = useSessionSummary(pathname, !insideRoleArea);
 
   useEffect(() => {
-    if (insideRoleArea) return;
+    if (insideRoleArea || !session?.signedIn) return;
     let live = true;
     fetch("/api/pwa/shell", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
@@ -27,8 +29,8 @@ export default function GlobalBottomNav() {
     return () => {
       live = false;
     };
-  }, [insideRoleArea, pathname]);
+  }, [insideRoleArea, pathname, session?.signedIn]);
 
-  if (insideRoleArea || !shell) return null;
+  if (insideRoleArea || !session?.signedIn || !shell) return null;
   return <MobileBottomNav role={shell.role} moreItems={shell.moreItems} />;
 }

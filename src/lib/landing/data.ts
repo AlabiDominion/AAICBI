@@ -218,8 +218,8 @@ const loadRealCached = unstable_cache(async (flagsJson: string) => loadReal(JSON
  * where a section is thin. Returns null when the landing switch is off,
  * so the page falls back to the original landing page.
  */
-export async function getLandingView(): Promise<{ view: LandingView; flags: EcosystemFlags } | null> {
-  const flags = await getEcosystemFlags();
+export async function getLandingView(knownFlags?: EcosystemFlags): Promise<{ view: LandingView; flags: EcosystemFlags } | null> {
+  const flags = knownFlags ?? await getEcosystemFlags();
   if (!flags.landing) return null;
   const real = await safe(() => loadRealCached(JSON.stringify(flags)), emptyReal());
   return { view: composeView(real, ALL_SAMPLES, { placeholders: flags.placeholders }), flags };

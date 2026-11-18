@@ -8,8 +8,7 @@ import NavProgress from "@/components/ui/NavProgress";
 import { Suspense } from "react";
 import PwaRegister from "@/components/pwa/PwaRegister";
 import GlobalBottomNav from "@/components/pwa/GlobalBottomNav";
-import ArenaReturnPill from "@/components/arena/ArenaReturnPill";
-import ChatAlerts from "@/components/arena/ChatAlerts";
+import TraineeExtras from "@/components/arena/TraineeExtras";
 import ResponsiveTables from "@/components/pwa/ResponsiveTables";
 import "./globals.css";
 
@@ -104,8 +103,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* The installable-app layer: service worker, offline notice, install prompt, and phone-friendly tables. */}
         <PwaRegister />
         <GlobalBottomNav />
-        <ArenaReturnPill />
-        <ChatAlerts />
+        <TraineeExtras />
         <ResponsiveTables />
       </body>
     </html>
